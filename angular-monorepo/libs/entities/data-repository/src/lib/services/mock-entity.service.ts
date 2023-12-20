@@ -178,10 +178,13 @@ export class MockEntityService {
   }
 
   getLocationStats(): Observable<LocationStats> {
-    return of({
-      lastWeekLocationOccupancy: this.lastWeekLocationOccupancy,
-      lastWeekEmployeesVisits: this.mapVisits(),
-    });
+    return defer(() => {
+      if (Math.random() < 0.1) return throwError(() => 'Failed to update');
+      return of({
+        lastWeekLocationOccupancy: this.lastWeekLocationOccupancy,
+        lastWeekEmployeesVisits: this.mapVisits(),
+      });
+    }).pipe(delay(1000));
   }
 
   private mapVisits() {
