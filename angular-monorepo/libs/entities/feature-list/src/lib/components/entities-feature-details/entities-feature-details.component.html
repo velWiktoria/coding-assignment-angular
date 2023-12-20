@@ -19,11 +19,11 @@
 <form
   *ngIf="{ entity: entity$ | async } as data"
   [formGroup]="form"
-  class="flex flex-column gap-2 relative max-w-30rem overflow-auto flex-1"
+  class="flex flex-column gap-2 relative max-w-30rem overflow-auto flex-1 p-1 m-1"
 >
   <div
     *ngIf="loading$ | async"
-    class="absolute w-full h-full flex justify-content-center align-items-center surface-100 z-2 opacity-30"
+    class="absolute w-full h-full flex justify-content-center align-items-center z-2"
   >
     <p-progressSpinner></p-progressSpinner>
   </div>
@@ -45,7 +45,6 @@
     <div class="flex flex-column gap-1">
       <label class="text-sm" for="name">Name *</label>
       <input
-        type="text"
         pInputText
         id="name"
         formControlName="name"
