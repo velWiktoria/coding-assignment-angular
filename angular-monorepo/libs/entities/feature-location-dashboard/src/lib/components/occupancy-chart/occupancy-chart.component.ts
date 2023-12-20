@@ -16,7 +16,6 @@ export class OccupancyChartComponent implements OnInit {
   }
 
   initChart() {
-    console.log(this.occupancies);
     this.chart = new Chart('occupancy-chart', {
       type: 'bar',
       data: {

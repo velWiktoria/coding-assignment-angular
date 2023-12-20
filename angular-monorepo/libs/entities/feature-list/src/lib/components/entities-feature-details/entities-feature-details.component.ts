@@ -85,9 +85,6 @@ export class EntitiesFeatureDetailsComponent {
       this.nameControl.statusChanges
         .pipe(
           take(1),
-          tap((t) => {
-            console.log(t);
-          }),
           catchError(() => {
             this.loadingSource.next(false);
             return of(null);
