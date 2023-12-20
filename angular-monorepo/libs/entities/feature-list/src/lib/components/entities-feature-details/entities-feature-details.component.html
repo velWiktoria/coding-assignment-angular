@@ -1,0 +1,109 @@
+<div class="flex justify-content-between">
+  <p-button
+    label="Back"
+    icon="pi pi-chevron-left"
+    type="button"
+    routerLink=".."
+    styleClass="p-button-link"
+  ></p-button>
+  <p-button
+    *ngIf="editableFields.disabled"
+    type="button"
+    icon="pi pi-pencil"
+    styleClass="p-button"
+    label="Edit"
+    (onClick)="enableForm()"
+  >
+  </p-button>
+</div>
+<form
+  *ngIf="{ entity: entity$ | async } as data"
+  [formGroup]="form"
+  class="flex flex-column gap-2"
+  (ngSubmit)="saveForm()"
+>
+  <div class="flex gap-3 align-items-center">
+    <div class="flex flex-column gap-1">
+      <label class="text-sm" for="entityId">Entity ID</label>
+      <input type="text" pInputText id="entityId" formControlName="entityId" />
+    </div>
+    <div class="pt-3">
+      <p-checkbox
+        formControlName="isActive"
+        [binary]="true"
+        inputId="isActive"
+      ></p-checkbox>
+      <label for="isActive" class="ml-2">Is active</label>
+    </div>
+  </div>
+  <form formGroupName="editableFields" class="flex flex-column gap-2">
+    <div class="flex flex-column gap-1">
+      <label class="text-sm" for="name">Name *</label>
+      <input type="text" pInputText id="name" formControlName="name" />
+      <small
+        *ngIf="nameControl?.errors?.['required']"
+        id="name-required"
+        class="text-red-500"
+        >Name is required.</small
+      >
+      <small
+        *ngIf="nameControl?.errors?.['uniqueName']"
+        id="name-required"
+        class="text-red-500"
+        >Name is already taken.</small
+      >
+      <small
+        *ngIf="nameControl?.errors?.['diffNameAndID']"
+        id="name-diffNameAndID"
+        class="text-red-500"
+        >Name must be different than tracking ID.</small
+      >
+      <small *ngIf="nameControl?.pending" id="name-diffNameAndID"
+        >Checking if the name is not taken...</small
+      >
+    </div>
+    <div class="flex flex-column gap-1">
+      <label class="text-sm" for="trackingId">Tracking ID</label>
+      <input
+        type="text"
+        pInputText
+        id="trackingId"
+        formControlName="trackingId"
+      />
+    </div>
+    <div class="flex flex-column gap-1">
+      <label class="text-sm" for="name">Type *</label>
+      <p-dropdown
+        [options]="(types$ | async) || []"
+        formControlName="entityType"
+        optionLabel="name"
+        optionValue="id"
+        [showClear]="false"
+      ></p-dropdown>
+      <small *ngIf="typeControl?.errors" id="name-required" class="text-red-500"
+        >Employee type is required.</small
+      >
+    </div>
+  </form>
+
+  <div class="flex flex-column gap-1">
+    <label class="text-sm" for="name">Status</label>
+    <input
+      type="text"
+      pInputText
+      id="entityStatus"
+      formControlName="entityStatus"
+    />
+  </div>
+  <div class="flex flex-column gap-1">
+    <label class="text-sm" for="name">Attributes</label>
+    <p-chips formControlName="attributes"></p-chips>
+  </div>
+
+  <p-button
+    *ngIf="editableFields.enabled"
+    label="Save"
+    icon="pi pi-save"
+    type="submit"
+  ></p-button>
+</form>

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'angular-monorepo-root',
@@ -6,37 +7,35 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  
   title = 'location-app';
 
-  items = [
+  items: MenuItem[] = [
     {
-        label: 'Entities',
-        icon: 'pi pi-fw pi-compass',
-        items: [
-          {
-            label: 'Homepage',
-            icon: 'pi pi-fw pi-bookmark',
-            routerLink: 'entity/homepage'
-          },
-          {
-              label: 'List',
-              icon: 'pi pi-fw pi-list',
-              routerLink: 'entity/list'
-          },
-        ]
+      label: 'Entities',
+      icon: 'pi pi-fw pi-compass',
+      items: [
+        {
+          label: 'Homepage',
+          icon: 'pi pi-fw pi-bookmark',
+          routerLink: 'entity/homepage',
+        },
+        {
+          label: 'List',
+          icon: 'pi pi-fw pi-list',
+          routerLink: 'entity/list',
+        },
+      ],
     },
     {
-        label: 'Dashboards',
-        icon: 'pi pi-fw pi-chart-bar',
-        items: [
-            {
-                label: 'Location Dashboard',
-                icon: 'pi pi-fw pi-chart-line',
-                routerLink: 'dashboards/location'
-            },
-        ]
+      label: 'Dashboards',
+      icon: 'pi pi-fw pi-chart-bar',
+      items: [
+        {
+          label: 'Location Dashboard',
+          icon: 'pi pi-fw pi-chart-line',
+          routerLink: 'dashboards/location',
+        },
+      ],
     },
   ];
-
 }

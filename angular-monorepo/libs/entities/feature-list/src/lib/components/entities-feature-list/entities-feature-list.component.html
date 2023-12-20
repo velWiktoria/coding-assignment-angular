@@ -1,0 +1,75 @@
+<div class="w-full flex flex-column align-center">
+  <div class="flex justify-content-between pb-2">
+    <span class="p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        pInputText
+        [formControl]="searchControl"
+        placeholder="Search"
+      />
+    </span>
+
+    <p-multiSelect
+      [options]="COLUMNS"
+      optionValue="field"
+      optionLabel="label"
+      [showHeader]="false"
+      [formControl]="visibleColumnsControl"
+      placeholder="Show/hide columns"
+    >
+      <ng-template let-value pTemplate="selectedItems">
+        Show/hide columns
+      </ng-template>
+    </p-multiSelect>
+  </div>
+
+  <!-- definitely change loading style -->
+  <p-table
+    *ngIf="visibleColumns$ | async as columns"
+    [columns]="columns"
+    [value]="(items$ | async) ?? []"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [loading]="(loading$ | async) ?? false"
+  >
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th
+          *ngFor="let col of columns"
+          [class.text-center]="col.field === 'isActive'"
+        >
+          {{ col.label }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td
+          *ngFor="let col of columns"
+          [class.text-center]="col.field === 'isActive'"
+          [routerLink]="col.field === 'name' ? rowData.entityId : null"
+        >
+          <ng-container *ngIf="col.field === 'isActive'; else defaultFieldTmpl">
+            <span
+              class="text-red-500"
+              *ngIf="!rowData.isActive; else activeTmpl"
+              ><i class="pi pi-exclamation-triangle mr-1"></i>Inactive</span
+            >
+            <ng-template #activeTmpl>Active</ng-template>
+          </ng-container>
+          <ng-template #defaultFieldTmpl>{{ rowData[col.field] }}</ng-template>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td
+          class="text-center text-lg opacity-70"
+          [attr.colspan]="columns.length"
+        >
+          No employees found.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
