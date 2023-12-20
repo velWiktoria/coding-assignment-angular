@@ -8,7 +8,7 @@ import {
   GetEntityListParams,
   LocationStats,
 } from '../model/model';
-import { Observable, delay, of, throwError } from 'rxjs';
+import { Observable, defer, delay, of, throwError } from 'rxjs';
 
 @Injectable()
 export class MockEntityService {
@@ -128,34 +128,49 @@ export class MockEntityService {
     search,
     name,
   }: GetEntityListParams): Observable<EntityListItem[]> {
-    return of(
-      search
-        ? this.entities.filter(
-            (entity) =>
-              entity.name.includes(search) ||
-              entity.trackingId?.includes(search)
-          )
-        : name
-        ? this.entities.filter((entity) => entity.name === name)
-        : this.entities
-    ).pipe(delay(1000));
+    return defer(() => {
+      if (Math.random() < 0.1)
+        return throwError(() => 'Cannot retrieve the list');
+      return of(
+        (search
+          ? this.entities.filter(
+              (entity) =>
+                entity.name.includes(search) ||
+                entity.trackingId?.includes(search)
+            )
+          : name
+          ? this.entities.filter((entity) => entity.name === name)
+          : this.entities
+        ).map((entity) => ({
+          ...entity,
+          entityType:
+            this.entityTypes.find((t) => t.id === entity.entityType)?.name ??
+            'Unknown type',
+        }))
+      );
+    }).pipe(delay(1000));
   }
 
   getEntityDetails(entityId: string): Observable<EntityDetails> {
     const entity = this.entities.find((entity) => entity.entityId === entityId);
-    return entity ? of(entity) : throwError(() => 'No entity found');
+    return entity
+      ? of(entity).pipe(delay(1000))
+      : throwError(() => 'No entity found');
   }
 
   updateEntity(
     entityUpdateDto: EntityUpdateDto,
     entityId: string
   ): Observable<EntityDetails> {
-    const index = this.entities.findIndex((e) => e.entityId === entityId);
-    if (index !== -1) {
-      this.entities[index] = { ...this.entities[index], ...entityUpdateDto };
-      return of(this.entities[index]);
-    }
-    return throwError(() => 'Entity not found');
+    return defer(() => {
+      if (Math.random() < 0.1) return throwError(() => 'Failed to update');
+      const index = this.entities.findIndex((e) => e.entityId === entityId);
+      if (index !== -1) {
+        this.entities[index] = { ...this.entities[index], ...entityUpdateDto };
+        return of(this.entities[index]);
+      }
+      return throwError(() => 'Entity not found');
+    }).pipe(delay(1000));
   }
 
   getEntityTypes(): Observable<EntityType[]> {

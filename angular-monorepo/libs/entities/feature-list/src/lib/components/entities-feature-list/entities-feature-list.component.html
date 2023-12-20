@@ -1,5 +1,5 @@
-<div class="w-full flex flex-column align-center">
-  <div class="flex justify-content-between pb-2">
+<div class="w-full h-full flex flex-column align-center">
+  <div class="flex justify-content-between pb-2 gap-2 flex-wrap">
     <span class="p-input-icon-left">
       <i class="pi pi-search"></i>
       <input
@@ -29,7 +29,12 @@
     *ngIf="visibleColumns$ | async as columns"
     [columns]="columns"
     [value]="(items$ | async) ?? []"
-    [tableStyle]="{ 'min-width': '50rem' }"
+    [scrollable]="true"
+    scrollHeight="flex"
+    class="max-h-full"
+    [tableStyle]="{
+      'min-width': '50rem',
+    }"
     [loading]="(loading$ | async) ?? false"
   >
     <ng-template pTemplate="header" let-columns>
@@ -47,7 +52,8 @@
         <td
           *ngFor="let col of columns"
           [class.text-center]="col.field === 'isActive'"
-          [routerLink]="col.field === 'name' ? rowData.entityId : null"
+          [class.clickable-col]="col.moveToDetails"
+          [routerLink]="col.moveToDetails ? rowData.entityId : undefined"
         >
           <ng-container *ngIf="col.field === 'isActive'; else defaultFieldTmpl">
             <span
@@ -57,7 +63,10 @@
             >
             <ng-template #activeTmpl>Active</ng-template>
           </ng-container>
-          <ng-template #defaultFieldTmpl>{{ rowData[col.field] }}</ng-template>
+          <ng-template #defaultFieldTmpl
+            >{{ rowData[col.field] }}
+            <i *ngIf="col.moveToDetails" class="pi pi-eye ml-1"></i
+          ></ng-template>
         </td>
       </tr>
     </ng-template>

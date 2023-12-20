@@ -5,9 +5,10 @@ import {
 import { Component } from '@angular/core';
 import { AsyncValidatorFn, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, filter, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, catchError, of, switchMap, take, tap } from 'rxjs';
 import { diffNameAndIDValidator } from '../../validators/diff-name-and-id.validator';
 import { createUniqueNameValidator } from '../../validators/unique-name.validator';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'angular-monorepo-entities-feature-details',
@@ -17,14 +18,17 @@ import { createUniqueNameValidator } from '../../validators/unique-name.validato
 export class EntitiesFeatureDetailsComponent {
   form = this.formBuilder.group({
     entityId: this.formBuilder.nonNullable.control('', [Validators.required]),
-    editableFields: this.formBuilder.group({
-      trackingId: this.formBuilder.nonNullable.control(''),
-      name: this.formBuilder.nonNullable.control('', {
-        validators: [Validators.required],
-        updateOn: 'blur',
-      }),
-      entityType: this.formBuilder.nonNullable.control(''),
-    }),
+    editableFields: this.formBuilder.group(
+      {
+        trackingId: this.formBuilder.nonNullable.control(''),
+        name: this.formBuilder.nonNullable.control('', {
+          validators: [Validators.required],
+          updateOn: 'blur',
+        }),
+        entityType: this.formBuilder.nonNullable.control(''),
+      },
+      { validators: [diffNameAndIDValidator] }
+    ),
     entityStatus: this.formBuilder.nonNullable.control(''),
     isActive: this.formBuilder.nonNullable.control(true),
     attributes: this.formBuilder.nonNullable.control<string[]>(
@@ -32,6 +36,8 @@ export class EntitiesFeatureDetailsComponent {
       [Validators.required]
     ),
   });
+  loadingSource = new BehaviorSubject(true);
+  loading$ = this.loadingSource.asObservable();
 
   entity$ = this.entityService
     .getEntityDetails(this.route.snapshot.params['id'])
@@ -61,9 +67,10 @@ export class EntitiesFeatureDetailsComponent {
     private formBuilder: FormBuilder,
     private entityService: EntityService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {
-    this.nameControl?.addValidators(diffNameAndIDValidator(this.form));
+    this.nameControl?.addValidators([Validators.required]);
     this.form.disable();
   }
 
@@ -72,40 +79,69 @@ export class EntitiesFeatureDetailsComponent {
   }
 
   saveForm() {
-    (this.nameControl.pending
-      ? this.nameControl.statusChanges.pipe(take(1))
-      : of('VALID')
-    )
+    this.editableFields.updateValueAndValidity();
+    this.loadingSource.next(true);
+    if (this.nameControl.pending) {
+      this.nameControl.statusChanges
+        .pipe(
+          take(1),
+          tap((t) => {
+            console.log(t);
+          }),
+          catchError(() => {
+            this.loadingSource.next(false);
+            return of(null);
+          }),
+          switchMap((status) =>
+            status === 'VALID' ? this.saveEntityPipe : of(null)
+          )
+        )
+        .subscribe();
+    } else if (this.editableFields.valid) {
+      this.saveEntityPipe.subscribe();
+    } else {
+      this.loadingSource.next(false);
+      this.editableFields.markAllAsTouched();
+    }
+  }
+
+  private get saveEntityPipe() {
+    return this.entityService
+      .updateEntity(
+        this.editableFields.getRawValue(),
+        this.route.snapshot.params['id']
+      )
       .pipe(
-        switchMap((status) => {
-          console.log(status);
-          return status === 'VALID'
-            ? this.entityService.updateEntity(
-                this.editableFields.getRawValue(),
-                this.route.snapshot.params['id']
-              )
-            : of(null);
-        }),
         catchError(() => {
           this.router.navigate(['..'], { relativeTo: this.route });
+          this.messageService.add({
+            severity: 'error',
+            detail: 'Failed to update employee',
+          });
           return of(null);
+        }),
+        tap((entity) => {
+          if (entity) {
+            this.editableFields.disable();
+            this.updateForm(entity);
+            this.messageService.add({
+              severity: 'success',
+              detail: 'Employee updated',
+            });
+          }
         })
-      )
-      .subscribe((entity) => {
-        if (entity) {
-          this.editableFields.disable();
-          this.updateForm(entity);
-        }
-      });
+      );
   }
 
   private updateForm(entity: EntityDetails) {
+    this.loadingSource.next(false);
     this.form.patchValue({ ...entity, editableFields: { ...entity } });
     if (this.uniqueNameValidator) {
       this.nameControl.removeAsyncValidators(this.uniqueNameValidator);
     }
     this.uniqueNameValidator = createUniqueNameValidator(
       this.entityService,
+      this.messageService,
       entity.name
     );
     this.nameControl?.addAsyncValidators([this.uniqueNameValidator]);

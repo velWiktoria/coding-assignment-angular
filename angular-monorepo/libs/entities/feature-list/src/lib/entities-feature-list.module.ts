@@ -1,4 +1,7 @@
-import { EntityService } from '@angular-monorepo/entities/data-repository';
+import {
+  EntityService,
+  LocalStorageService,
+} from '@angular-monorepo/entities/data-repository';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -8,7 +11,9 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ChipsModule } from 'primeng/chips';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TableModule } from 'primeng/table';
 import { EntitiesFeatureDetailsComponent } from './components/entities-feature-details/entities-feature-details.component';
 import { EntitiesFeatureListComponent } from './components/entities-feature-list/entities-feature-list.component';
@@ -28,8 +33,10 @@ import { EntitiesFeatureListComponent } from './components/entities-feature-list
     CheckboxModule,
     ChipsModule,
     DropdownModule,
+    ProgressSpinnerModule,
   ],
+
   declarations: [EntitiesFeatureListComponent, EntitiesFeatureDetailsComponent],
-  providers: [EntityService],
+  providers: [EntityService, LocalStorageService],
 })
 export class EntitiesFeatureListModule {}

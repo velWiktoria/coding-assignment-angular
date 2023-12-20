@@ -1,6 +1,5 @@
 import { EntityService } from '@angular-monorepo/entities/data-repository';
 import { Component } from '@angular/core';
-import { combineLatest, map } from 'rxjs';
 
 @Component({
   selector: 'angular-monorepo-location-dashboard',

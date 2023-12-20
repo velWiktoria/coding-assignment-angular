@@ -4,10 +4,12 @@ import {
   AsyncValidatorFn,
   ValidationErrors,
 } from '@angular/forms';
-import { Observable, map, of } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 
 export const createUniqueNameValidator = (
   entityService: EntityService,
+  messageService: MessageService,
   currentName: string
 ): AsyncValidatorFn => {
   return (
@@ -15,7 +17,14 @@ export const createUniqueNameValidator = (
   ): Observable<ValidationErrors | null> =>
     control.value === currentName
       ? of(null)
-      : entityService
-          .getEntityList({ name: control.value })
-          .pipe(map((list) => (list.length ? { uniqueName: true } : null)));
+      : entityService.getEntityList({ name: control.value }).pipe(
+          catchError(() => {
+            messageService.add({
+              severity: 'error',
+              detail: 'Cannot check the name availability',
+            });
+            return of([]);
+          }),
+          map((list) => (list.length ? { uniqueName: true } : null))
+        );
 };

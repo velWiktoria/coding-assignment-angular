@@ -1,7 +1,17 @@
 <div class="app-container">
   <div class="header">
-    <h2>Great Location App</h2>
-    <div>
+    <p-button
+      class="block sm:hidden"
+      (click)="sideMenuVisible = true"
+      icon="pi pi-bars"
+      styleClass="p-button-text"
+    ></p-button>
+    <p-sidebar [(visible)]="sideMenuVisible">
+      <ng-template pTemplate="header"><h3>Great Location App</h3></ng-template>
+      <ng-container *ngTemplateOutlet="menuTmpl"></ng-container
+    ></p-sidebar>
+    <h2 class="hidden md:block">Great Location App</h2>
+    <div class="ml-auto">
       <p-avatar
         label="KO"
         pBadge
@@ -12,11 +22,17 @@
     </div>
   </div>
   <div class="main-container">
-    <div class="menu-container">
-      <p-panelMenu [model]="items" [multiple]="true"></p-panelMenu>
+    <div class="menu-container hidden md:block">
+      <ng-container *ngTemplateOutlet="menuTmpl"></ng-container>
     </div>
-    <div class="w-full p-3">
+    <div class="w-full p-3 flex-1">
       <router-outlet></router-outlet>
     </div>
   </div>
 </div>
+
+<ng-template #menuTmpl>
+  <p-panelMenu [model]="items" [multiple]="true"></p-panelMenu>
+</ng-template>
+
+<p-toast></p-toast>

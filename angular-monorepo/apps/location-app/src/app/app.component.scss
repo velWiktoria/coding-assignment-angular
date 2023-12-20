@@ -1,6 +1,5 @@
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 
     background-color: lightgray;
@@ -11,13 +10,16 @@
     }
 }
 
+.app-container {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .main-container {
     display: flex;
     height: 100%;
-}
-
-.app-container {
-    height: 100vh;
 }
 
 .menu-container {

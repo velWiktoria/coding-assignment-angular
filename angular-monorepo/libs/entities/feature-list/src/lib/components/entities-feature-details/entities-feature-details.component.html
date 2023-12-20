@@ -1,4 +1,4 @@
-<div class="flex justify-content-between">
+<div class="flex justify-content-between max-w-30rem">
   <p-button
     label="Back"
     icon="pi pi-chevron-left"
@@ -19,9 +19,14 @@
 <form
   *ngIf="{ entity: entity$ | async } as data"
   [formGroup]="form"
-  class="flex flex-column gap-2"
-  (ngSubmit)="saveForm()"
+  class="flex flex-column gap-2 relative max-w-30rem overflow-auto flex-1"
 >
+  <div
+    *ngIf="loading$ | async"
+    class="absolute w-full h-full flex justify-content-center align-items-center surface-100 z-2 opacity-30"
+  >
+    <p-progressSpinner></p-progressSpinner>
+  </div>
   <div class="flex gap-3 align-items-center">
     <div class="flex flex-column gap-1">
       <label class="text-sm" for="entityId">Entity ID</label>
@@ -39,7 +44,14 @@
   <form formGroupName="editableFields" class="flex flex-column gap-2">
     <div class="flex flex-column gap-1">
       <label class="text-sm" for="name">Name *</label>
-      <input type="text" pInputText id="name" formControlName="name" />
+      <input
+        type="text"
+        pInputText
+        id="name"
+        formControlName="name"
+        [class.ng-invalid]="editableFields.errors?.['diffNameAndID']"
+        [class.ng-dirty]="editableFields.errors?.['diffNameAndID']"
+      />
       <small
         *ngIf="nameControl?.errors?.['required']"
         id="name-required"
@@ -53,12 +65,14 @@
         >Name is already taken.</small
       >
       <small
-        *ngIf="nameControl?.errors?.['diffNameAndID']"
+        *ngIf="editableFields?.errors?.['diffNameAndID']"
         id="name-diffNameAndID"
         class="text-red-500"
         >Name must be different than tracking ID.</small
       >
-      <small *ngIf="nameControl?.pending" id="name-diffNameAndID"
+      <small
+        *ngIf="!editableFields.errors && nameControl?.pending"
+        id="name-diffNameAndID"
         >Checking if the name is not taken...</small
       >
     </div>
@@ -79,6 +93,7 @@
         optionLabel="name"
         optionValue="id"
         [showClear]="false"
+        [style]="{ width: '100%' }"
       ></p-dropdown>
       <small *ngIf="typeControl?.errors" id="name-required" class="text-red-500"
         >Employee type is required.</small
@@ -97,13 +112,15 @@
   </div>
   <div class="flex flex-column gap-1">
     <label class="text-sm" for="name">Attributes</label>
-    <p-chips formControlName="attributes"></p-chips>
+    <p-chips [style]="{ width: '100%' }" formControlName="attributes"></p-chips>
   </div>
 
   <p-button
     *ngIf="editableFields.enabled"
+    [disabled]="(loading$ | async) ?? true"
     label="Save"
     icon="pi pi-save"
     type="submit"
+    (onClick)="saveForm()"
   ></p-button>
 </form>
