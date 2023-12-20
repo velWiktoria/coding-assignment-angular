@@ -25,4 +25,16 @@ export const appRoutes: Route[] = [
       },
     ],
   },
+  {
+    path: 'dashboards',
+    children: [
+      {
+        path: 'location',
+        loadChildren: () =>
+          import(
+            'libs/entities/feature-location-dashboard/src/lib/entities-feature-location-dashboard.module'
+          ).then((m) => m.EntitiesFeatureLocationDashboardModule),
+      },
+    ],
+  },
 ];

@@ -164,8 +164,20 @@ export class MockEntityService {
 
   getLocationStats(): Observable<LocationStats> {
     return of({
-      lastWeekLocationOccupancy: [],
-      lastWeekEmployeesVisits: [],
+      lastWeekLocationOccupancy: this.lastWeekLocationOccupancy,
+      lastWeekEmployeesVisits: this.mapVisits(),
     });
+  }
+
+  private mapVisits() {
+    const count: { [key: string]: number } = {};
+    this.lastWeekVisitsLog.forEach(
+      (log) => (count[log.name] = (count[log.name] || 0) + 1)
+    );
+    const topCounts = Object.entries(count)
+      .sort()
+      .slice(0, 5)
+      .map((log) => ({ name: log[0], visits: log[1] }));
+    return topCounts;
   }
 }

@@ -1,0 +1,10 @@
+<div class="dashboard-grid" *ngIf="data$ | async as data; else loadingTmpl">
+  <angular-monorepo-occupancy-chart
+    [occupancies]="data.lastWeekLocationOccupancy"
+  ></angular-monorepo-occupancy-chart>
+  <angular-monorepo-visits-chart
+    [visits]="data.lastWeekEmployeesVisits"
+  ></angular-monorepo-visits-chart>
+</div>
+
+<ng-template #loadingTmpl> Loading... </ng-template>

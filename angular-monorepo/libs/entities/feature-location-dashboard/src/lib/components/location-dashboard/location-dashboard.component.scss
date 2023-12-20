@@ -1,0 +1,12 @@
+.dashboard-grid {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+
+    > * {
+        min-width: 500px;
+        padding: 1rem 2rem 2rem;
+        background-color: var(--surface-100);
+    }
+}
