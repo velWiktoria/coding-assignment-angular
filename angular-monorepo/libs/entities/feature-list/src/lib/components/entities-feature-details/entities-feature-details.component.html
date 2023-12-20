@@ -48,8 +48,7 @@
         pInputText
         id="name"
         formControlName="name"
-        [class.ng-invalid]="editableFields.errors?.['diffNameAndID']"
-        [class.ng-dirty]="editableFields.errors?.['diffNameAndID']"
+        [class.border-red-600]="editableFields.errors?.['diffNameAndID']"
       />
       <small
         *ngIf="nameControl?.errors?.['required']"
